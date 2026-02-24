@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id            String         @id // This will now map directly to the StackAuth User ID
+  email         String         @unique
+  name          String?
+  avatar        String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  ownedRooms    Room[]         @relation("RoomOwner")
+  memberships   RoomMember[]
+  aiGenerations AIGeneration[]
+}
+model Room {
+  id          String   @id @default(uuid())
+  slug        String?  @unique
+  name        String   @default("Untitled Board")
+  data        Json?     
+  thumbnail   String?    
+  isPublic    Boolean  @default(false)
+  allowEdits  Boolean  @default(true)  // THIS IS THE LINE IT IS MISSING
+  ownerId     String
+  owner       User     @relation("RoomOwner", fields: [ownerId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  members     RoomMember[]
+  snapshots   RoomSnapshot[]
+}
+
+model RoomMember {
+  id        String   @id @default(uuid())
+  roomId    String
+  userId    String
+  role      Role     @default(EDITOR)
+  joinedAt  DateTime @default(now())
+  allowEdits  Boolean  @default(true)  
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([roomId, userId])
+}
+
+model RoomSnapshot {
+  id        String   @id @default(uuid())
+  roomId    String
+  data      Json
+  reason    String?  
+  createdAt DateTime @default(now())
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+}
+
+model AIGeneration {
+  id        String   @id @default(uuid())
+  prompt    String
+  response  Json
+  tokens    Int?
+  userId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+enum Role {
+  OWNER
+  EDITOR
+  VIEWER
+}
+
