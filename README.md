@@ -88,7 +88,7 @@ npx prisma migrate dev
 
 ```bash
 cd backend
-npx tsx src/server.ts
+npm run dev
 ```
 
 Backend runs on `http://localhost:8080` by default.
@@ -115,11 +115,16 @@ npm run lint
 
 ### Backend
 
-Current project uses direct run command:
-
 ```bash
-npx tsx src/server.ts
+npm run dev
+npm run build
+npm run start
 ```
+
+Backend script usage:
+- `npm run dev`: run backend in watch mode using `tsx`
+- `npm run build`: compile TypeScript to `dist/`
+- `npm run start`: run compiled server from `dist/server.js`
 
 ## API Overview
 
