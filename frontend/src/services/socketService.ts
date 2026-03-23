@@ -1,7 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 
-// Fallback to localhost if the environment variable is missing
-const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:8080';
+const SOCKET_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080';
 
 class SocketService {
   public socket: Socket | null = null;

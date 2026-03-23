@@ -1,4 +1,4 @@
-import express, { Application, Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
@@ -12,7 +12,8 @@ import apiRoutes from './routes/api.routes';
 // Load environment variables
 dotenv.config();
 
-const app: Application = express();
+const app = express();
+const PORT = process.env.PORT || 8080;
 const httpServer = createServer(app);
 
 // --- Global Middlewares ---
@@ -52,8 +53,6 @@ app.use('/api/v1/user', userRoutes);
 app.use('/api/v1', apiRoutes);
 
 setupSockets(io);
-
-const PORT = process.env.PORT || 8080;
 
 httpServer.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);

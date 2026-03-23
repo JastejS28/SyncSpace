@@ -7,7 +7,7 @@ datasource db {
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
-
+//these are entities
 model User {
   id            String         @id // This will now map directly to the StackAuth User ID
   email         String         @unique

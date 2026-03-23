@@ -1,9 +1,19 @@
 import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
 
+const getStringParam = (value: unknown): string | undefined => {
+  if (typeof value === 'string') return value;
+  if (Array.isArray(value) && typeof value[0] === 'string') return value[0];
+  return undefined;
+};
+
 export const saveRoomData = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { roomId } = req.params;
+    const roomId = getStringParam(req.params.roomId);
+    if (!roomId) {
+      res.status(400).json({ success: false, error: 'Invalid roomId' });
+      return;
+    }
     // NEW: Accept name and thumbnail from the frontend
     const { shapes, name, thumbnail } = req.body; 
     
@@ -36,7 +46,11 @@ export const saveRoomData = async (req: Request, res: Response): Promise<void> =
 
 export const getRoomData = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { roomId } = req.params;
+    const roomId = getStringParam(req.params.roomId);
+    if (!roomId) {
+      res.status(400).json({ success: false, error: 'Invalid roomId' });
+      return;
+    }
     const userId = req.user?.sub; // The person requesting the board
 
     const room = await prisma.room.findUnique({
@@ -48,6 +62,7 @@ export const getRoomData = async (req: Request, res: Response): Promise<void> =>
       res.status(404).json({ success: false, room: { data: [] } });
       return;
     }
+
 
     // THE SECURITY GATE: If the board is strictly private, ONLY the owner can access it.
     if (!room.isPublic && room.ownerId !== userId) {
@@ -90,7 +105,7 @@ export const createRoom = async (req: Request, res: Response): Promise<void> => 
 // --- NEW: Get all rooms for the dashboard ---
 export const getUserRooms = async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = req.user?.sub;
+    const userId = req.user?.sub;  //what does req.user?.sub mean? The 'sub' claim in the JWT typically contains the unique user ID. This is how we identify which user is making the request, so we can fetch only their boards from the database. The requireAuth middleware ensures that req.user is populated with the decoded JWT payload, so we can safely access req.user.sub to get the user's ID.
     if (!userId) {
       res.status(401).json({ success: false, error: "Unauthorized" });
       return;
@@ -118,7 +133,11 @@ export const getUserRooms = async (req: Request, res: Response): Promise<void> =
 
 export const toggleVisibility = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { roomId } = req.params;
+    const roomId = getStringParam(req.params.roomId);
+    if (!roomId) {
+      res.status(400).json({ success: false, error: 'Invalid roomId' });
+      return;
+    }
     // Extract BOTH settings from the frontend request
     const { isPublic, allowEdits } = req.body; 
     const userId = req.user?.sub;
@@ -146,7 +165,11 @@ export const toggleVisibility = async (req: Request, res: Response): Promise<voi
 // --- NEW: Delete a board ---
 export const deleteRoom = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { roomId } = req.params;
+    const roomId = getStringParam(req.params.roomId);
+    if (!roomId) {
+      res.status(400).json({ success: false, error: 'Invalid roomId' });
+      return;
+    }
     const userId = req.user?.sub;
 
     if (!userId) {

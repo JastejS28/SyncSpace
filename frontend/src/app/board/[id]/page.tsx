@@ -9,10 +9,7 @@ export default function BoardPage() {
   const roomId = params.id as string;
 
   return (
-    <main className="relative w-full h-screen">
-      
-      
-      {/* Pass the roomId explicitly */}
+    <main className="relative h-screen w-full overflow-hidden bg-blue-50/70">
       <Toolbar roomId={roomId} />
       <CanvasBoard roomId={roomId} />
     </main>
