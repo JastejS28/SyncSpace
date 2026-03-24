@@ -26,6 +26,7 @@ app.use(helmet());
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   credentials: true, // Crucial: Allows the frontend to send cookies/auth headers
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
 // 3. Body Parsers: Allows Express to read JSON and URL-encoded payloads.

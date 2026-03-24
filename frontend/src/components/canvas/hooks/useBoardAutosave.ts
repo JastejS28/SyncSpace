@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useUser } from '@stackframe/stack';
 import { useBoardStore } from '@/store/boardStore';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080';
@@ -13,6 +14,8 @@ type UseBoardAutosaveArgs = {
 };
 
 export function useBoardAutosave({ roomId, user, isReadOnly, boardName, stageRef, lastSavedState }: UseBoardAutosaveArgs) {
+  const stackUser = useUser({ or: 'redirect' });
+  
   useEffect(() => {
     if (!user || isReadOnly) return;
 
@@ -26,10 +29,13 @@ export function useBoardAutosave({ roomId, user, isReadOnly, boardName, stageRef
           : null;
 
         try {
+          const token = await stackUser.getAccessToken();
           const response = await fetch(`${BACKEND_URL}/api/v1/room/${roomId}`, {
             method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}` 
+            },
             body: JSON.stringify({ shapes: currentShapes, name: boardName, thumbnail: thumbnailDataUrl }),
           });
 

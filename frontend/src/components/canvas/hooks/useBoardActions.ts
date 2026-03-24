@@ -1,4 +1,5 @@
 import { useState, type ChangeEvent, type MutableRefObject } from 'react';
+import { useUser } from '@stackframe/stack';
 import { v4 as uuidv4 } from 'uuid';
 import { jsPDF } from 'jspdf';
 import { socketService } from '@/services/socketService';
@@ -34,6 +35,7 @@ export function useBoardActions({
   accessMode,
   setAccessMode,
 }: UseBoardActionsArgs) {
+  const stackUser = useUser({ or: 'redirect' });
   const [showShareModal, setShowShareModal] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
@@ -44,10 +46,13 @@ export function useBoardActions({
     const allowEdits = mode === 'EDIT';
 
     try {
+      const token = await stackUser.getAccessToken();
       await fetch(`${BACKEND_URL}/api/v1/room/${roomId}/visibility`, {
         method: 'PUT',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
         body: JSON.stringify({ isPublic, allowEdits }),
       });
     } catch {

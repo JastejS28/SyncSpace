@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useUser } from '@stackframe/stack';
 import { v4 as uuidv4 } from 'uuid';
 import dagre from 'dagre';
 import { socketService } from '@/services/socketService';
@@ -18,6 +19,7 @@ type UseAICopilotArgs = {
 };
 
 export function useAICopilot({ roomId, user, isReadOnly, stageRef, stagePos, stageScale, addShape }: UseAICopilotArgs) {
+  const stackUser = useUser({ or: 'redirect' });
   const [isAIOpen, setIsAIOpen] = useState(false);
   const [aiPrompt, setAiPrompt] = useState('');
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([
@@ -36,10 +38,13 @@ export function useAICopilot({ roomId, user, isReadOnly, stageRef, stagePos, sta
     try {
       const imageBase64 = stageRef.current ? stageRef.current.toDataURL({ pixelRatio: 0.3, mimeType: 'image/jpeg', quality: 0.5 }) : null;
 
+      const token = await stackUser.getAccessToken();
       const res = await fetch(`${BACKEND_URL}/api/v1/ai/generate`, {
         method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
         body: JSON.stringify({ prompt: userMessage, imageBase64 }),
       });
 

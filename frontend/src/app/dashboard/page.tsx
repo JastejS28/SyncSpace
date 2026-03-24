@@ -31,14 +31,15 @@ export default function DashboardPage() {
 
     const initializeDashboard = async () => {
       try {
+        const token = await user.getAccessToken();
         await fetch(`${BACKEND_URL}/api/v1/user/sync`, {
           method: 'POST',
-          credentials: 'include',
+          headers: { 'Authorization': `Bearer ${token}` },
         });
 
         const response = await fetch(`${BACKEND_URL}/api/v1/room`, {
           method: 'GET',
-          credentials: 'include',
+          headers: { 'Authorization': `Bearer ${token}` },
         });
 
         if (response.ok) {
@@ -60,9 +61,10 @@ export default function DashboardPage() {
     setIsCreating(true);
 
     try {
+      const token = await user.getAccessToken();
       const response = await fetch(`${BACKEND_URL}/api/v1/room`, {
         method: 'POST',
-        credentials: 'include',
+        headers: { 'Authorization': `Bearer ${token}` },
       });
 
       if (response.ok) {
@@ -86,9 +88,10 @@ export default function DashboardPage() {
     setRooms((prev) => prev.filter((r) => r.id !== roomId));
 
     try {
+      const token = await user.getAccessToken();
       const response = await fetch(`${BACKEND_URL}/api/v1/room/${roomId}`, {
         method: 'DELETE',
-        credentials: 'include',
+        headers: { 'Authorization': `Bearer ${token}` },
       });
 
       if (!response.ok) throw new Error('Deletion failed on server');

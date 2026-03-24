@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useUser } from '@stackframe/stack';
 import { socketService } from '@/services/socketService';
 import { useBoardStore, CanvasShape } from '@/store/boardStore';
 import type { AccessMode, RemoteCursor } from '../types';
@@ -38,6 +39,8 @@ export function useBoardSession({
   setBoardName,
   lastSavedState,
 }: UseBoardSessionArgs) {
+  const stackUser = useUser({ or: 'redirect' });
+  
   useEffect(() => {
     if (!user) return;
 
@@ -49,7 +52,11 @@ export function useBoardSession({
 
     const initBoard = async () => {
       try {
-        const response = await fetch(`${BACKEND_URL}/api/v1/room/${roomId}`, { method: 'GET', credentials: 'include' });
+        const token = await stackUser.getAccessToken();
+        const response = await fetch(`${BACKEND_URL}/api/v1/room/${roomId}`, { 
+          method: 'GET', 
+          headers: { 'Authorization': `Bearer ${token}` } 
+        });
 
         if (response.ok) {
           const result = await response.json();
